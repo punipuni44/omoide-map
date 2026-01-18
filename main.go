@@ -12,7 +12,11 @@ func main() {
 <html>
 <head>
     <title>Omoide Map</title>
-    <style>#map { height: 100vh; width: 100%; }</style>
+    <style>
+        #map { height: 90vh; width: 90%; }
+        h1 { font-size: 16px; }
+    </style>
+    
 </head>
 <body>
     <h1>思い出マップ</h1>
@@ -32,13 +36,43 @@ func main() {
                 title: "ここに思い出！"
             });
 
+            // 追加マーカーを管理する配列
+            const markers = [];
+
             // クリックで新しいマーカーを追加
             map.addListener("click", (e) => {
                 const latLng = e.latLng;
-                new google.maps.Marker({
+                
+                // 例: ユーザーに名前と詳細を入力させる
+                const title = prompt("思い出の名前を入力してください");
+                if (!title) return;
+
+                const description = prompt("詳細を入力してください");
+
+                const marker = new google.maps.Marker({
                     position: latLng,
                     map: map,
                     title: "新しい思い出"
+                });
+
+                // InfoWindow 作成
+                const infoWindow = new google.maps.InfoWindow({
+                    content: "<strong>" + title + "</strong><br>" + description
+                });
+
+                // マーカークリックで InfoWindow を表示
+                marker.addListener("click", () => {
+                    infoWindow.open(map, marker);
+                });
+
+                // 配列に保存
+                markers.push(marker);
+
+                // マーカーをダブルクリックで削除
+                marker.addListener("dblclick", () => {
+                    marker.setMap(null); // 地図から削除
+                    const index = markers.indexOf(marker);
+                    if (index > -1) markers.splice(index, 1); // 配列からも削除
                 });
             });
         }
